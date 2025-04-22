@@ -45,6 +45,7 @@ export default function ReporteDiario() {
           format(day ?? new Date(Date.now()), "yyyy-MM-dd", { locale: es })
       );
       const json = await res.json();
+      console.log("json", json);
       setData(json ?? null);
     } catch (error) {
       console.error("Error al obtener datos:", error);
