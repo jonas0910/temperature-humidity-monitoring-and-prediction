@@ -34,14 +34,26 @@ export default async function handler(
   const groupByHour = (data: any[]) => {
     const hourly: { [key: string]: { temps: number[]; hums: number[] } } = {};
 
+    // data.forEach((d) => {
+    //   const hour = new Date(d.time).getHours().toString().padStart(2, "0");
+    //   if (!hourly[hour]) {
+    //     hourly[hour] = { temps: [], hums: [] };
+    //   }
+    //   hourly[hour].temps.push(d.temperature);
+    //   hourly[hour].hums.push(d.humidity);
+    // });
     data.forEach((d) => {
-      const hour = new Date(d.time).getHours().toString().padStart(2, "0");
+      const date = new Date(d.time)
+      const utcHour = date.getUTCHours()
+      const limaHour = (utcHour + 24 - 5) % 24 // Ajuste de zona horaria (UTC-5)
+    
+      const hour = limaHour.toString().padStart(2, "0")
       if (!hourly[hour]) {
-        hourly[hour] = { temps: [], hums: [] };
+        hourly[hour] = { temps: [], hums: [] }
       }
-      hourly[hour].temps.push(d.temperature);
-      hourly[hour].hums.push(d.humidity);
-    });
+      hourly[hour].temps.push(d.temperature)
+      hourly[hour].hums.push(d.humidity)
+    })
 
     const result = [];
     for (let i = 0; i < 24; i++) {
