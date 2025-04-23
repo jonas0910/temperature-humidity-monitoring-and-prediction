@@ -80,13 +80,11 @@ export default function ReporteDiario() {
 
   // Formatear datos para el gráfico
   const chartData = data.readings?.map((reading) => ({
-    time: new Date(reading.time).toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-    }),
+    time: format(new Date(reading.time), "HH:mm"),
     temperatura: reading.temperature,
     humedad: reading.humidity,
   }));
+  console.log("readings", data.readings);
 
   return (
     <div className="space-y-6">
@@ -128,11 +126,7 @@ export default function ReporteDiario() {
               </PopoverContent>
             </Popover>
           </div>
-          <Button
-            onClick={fetchData}
-            disabled={isLoading}
-            className="sm:mt-0"
-          >
+          <Button onClick={fetchData} disabled={isLoading} className="sm:mt-0">
             {isLoading ? "Generando..." : "Generar Reporte"}
           </Button>
         </div>
