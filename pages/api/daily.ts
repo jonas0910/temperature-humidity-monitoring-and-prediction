@@ -12,8 +12,12 @@ export default async function handler(
     return res.status(400).json({ error: "Missing or invalid date param" });
   }
 
-  const start = `${date}T00:00:00`;
-  const end = `${date}T23:59:59`;
+  // Convertir la fecha local (Perú) a UTC
+  const localDate = new Date(`${date}T00:00:00-05:00`); // -05:00 para zona horaria de Perú
+
+  const start = localDate.toISOString(); // Fecha UTC de 00:00 Perú
+  const endDate = new Date(localDate.getTime() + 24 * 60 * 60 * 1000 - 1); // Fin del mismo día, 23:59:59.999
+  const end = endDate.toISOString();
 
   const { data, error } = await supabase
     .from("sensor_data")
@@ -21,6 +25,7 @@ export default async function handler(
     .gte("time", start)
     .lte("time", end);
 
+  console.log("Data:", data);
   if (error) {
     return res.status(500).json({ error: error?.message || "No data found" });
   }
@@ -43,17 +48,17 @@ export default async function handler(
     //   hourly[hour].hums.push(d.humidity);
     // });
     data.forEach((d) => {
-      const date = new Date(d.time)
-      const utcHour = date.getUTCHours()
-      const limaHour = (utcHour + 24) % 24 
-    
-      const hour = limaHour.toString().padStart(2, "0")
+      const date = new Date(d.time);
+      const utcHour = date.getUTCHours();
+      const limaHour = (utcHour + 24 - 5) % 24; // Ajuste de zona horaria (UTC-5)
+
+      const hour = limaHour.toString().padStart(2, "0");
       if (!hourly[hour]) {
-        hourly[hour] = { temps: [], hums: [] }
+        hourly[hour] = { temps: [], hums: [] };
       }
-      hourly[hour].temps.push(d.temperature)
-      hourly[hour].hums.push(d.humidity)
-    })
+      hourly[hour].temps.push(d.temperature);
+      hourly[hour].hums.push(d.humidity);
+    });
 
     const result = [];
     for (let i = 0; i < 24; i++) {
