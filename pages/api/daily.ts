@@ -45,7 +45,7 @@ export default async function handler(
     data.forEach((d) => {
       const date = new Date(d.time)
       const utcHour = date.getUTCHours()
-      const limaHour = (utcHour + 24 - 5) % 24 // Ajuste de zona horaria (UTC-5)
+      const limaHour = (utcHour + 24) % 24 
     
       const hour = limaHour.toString().padStart(2, "0")
       if (!hourly[hour]) {
